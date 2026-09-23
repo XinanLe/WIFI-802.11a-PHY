@@ -209,7 +209,7 @@ classdef IEEE802_11a_Transmitter
             
             %% scrampling
             [scrambledData , ~] = IEEE802_11a_Transmitter.scrambler(Intitial_State,padedData);
-            scrambledData(16+(obj.LENGTH*8)+1:16+(obj.LENGTH*8)+6+1) = 0;% Tail Bits = zeros "Need to be automated"
+            scrambledData(16+(obj.LENGTH*8)+(1:6)) = 0;% Tail Bits = zeros "Need to be automated"
             
             %% Encoding
             Trellis = poly2trellis(7,[133,171]); % K = 7 shift register + 1 % gen pol [133,171]
