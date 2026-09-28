@@ -890,7 +890,7 @@ function [Data_SC , Pilots] = PilotsExtraction(activeSubCarriers)
                 activeSubCarriers(34:46,:);% 47
                 activeSubCarriers(48:end,:)];% 47
 
-    Pilots = [activeSubCarriers([6,20,33,48],:)];
+    Pilots = [activeSubCarriers([6,20,33,47],:)];
 end
 
 function deinterleavedData = deInterleaver(codedData,Nbpsc,Ncbps)

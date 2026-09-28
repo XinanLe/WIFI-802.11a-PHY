@@ -137,14 +137,15 @@ classdef IEEE802_11a_Receiver < handle
                 obj.waveformBuffer = obj.Waveform(startIndex:end);
 
                 if(obj.DebugMode)
-                    disp("Strat Index: ");disp(startIndex);
+                    fprintf(1, '[Signal Detection] Strat Index: %d\n', startIndex);
+
                     figure("Name","Signal Detection");
                     subplot(2,1,1)
                     plot(1:length(samplesEnergy),samplesEnergy)
                     title("Signal Energy")
                     subplot(2,1,2)
                     plot(1:length(obj.waveformBuffer),abs(obj.waveformBuffer))
-                    title("Waveform after STO Correction")
+                    title("Waveform after Signal Detection")
                 end
                 %% PacketDetection
                 AutocorrOut = obj.Autocorr(obj.waveformBuffer(1:300),16);
@@ -173,6 +174,7 @@ classdef IEEE802_11a_Receiver < handle
         end
 
         function LongPreamble_State(obj)
+            % 取2个相邻的LTF, 这里就没办法保证开窗开到最开始的0.5个LTF内
             longPreambleWaveform = obj.waveformBuffer((obj.Preamble_samples/2)+1:obj.Preamble_samples);
             
             
@@ -229,8 +231,9 @@ classdef IEEE802_11a_Receiver < handle
 
             % Freq Domain Error
             if obj.DebugMode
-                Signal_FreqDomain_Error = sum(round(signalFreqDoamin,1)~=round(obj.SignalOutput.SignalFreqDomain,1)) %#ok<NASGU>
-                % find(round(signalFreqDoamin,1)~=round(obj.SignalOutput.SignalFreqDomain,1))
+                Signal_FreqDomain_Error = sum(round(signalFreqDoamin,1)~=round(obj.SignalOutput.SignalFreqDomain,1));
+                fprintf(1, 'Signal_FreqDomain_Error: %.2f\n', Signal_FreqDomain_Error);
+                % find(round(signalFreqDoamin,1)~=round(obj.SignalOutput.SignalFreqDomain,1));
             end
             %% Signal Gaurd Remove & Pilots Extraction
             signalActiveSC = IEEE802_11a_Receiver.Gaurd_Remover(signalFreqDoamin);
@@ -249,23 +252,26 @@ classdef IEEE802_11a_Receiver < handle
             interleavedSignal = IEEE802_11a_Receiver.QAM_DEMOD(round(mappedSignal),2); %%*************%%
             % Demapping Error
             if obj.DebugMode
-                Signal_Demapping_Error = sum(interleavedSignal~=obj.SignalOutput.InterleavedSignal) %#ok<NASGU>
-                find(interleavedSignal~=obj.SignalOutput.InterleavedSignal)
+                Signal_Demapping_Error = sum(interleavedSignal~=obj.SignalOutput.InterleavedSignal);
+                fprintf(1, 'Signal_Demapping_Error: %.2f\n', Signal_Demapping_Error);
+                find(interleavedSignal~=obj.SignalOutput.InterleavedSignal);
             end
             %% Signal DeInterleaving
             enCoddedSignal = IEEE802_11a_Receiver.deInterleaver(interleavedSignal',1,48);
             % DeInterleaving Error
             if obj.DebugMode
-                Signal_DeInterleaver_Error = sum(enCoddedSignal'~=obj.SignalOutput.EncoddedSignal) %#ok<NASGU>
-                find(enCoddedSignal'~=obj.SignalOutput.EncoddedSignal)
+                Signal_DeInterleaver_Error = sum(enCoddedSignal'~=obj.SignalOutput.EncoddedSignal);
+                fprintf(1, 'Signal_DeInterleaver_Error: %.2f\n', Signal_DeInterleaver_Error);
+                find(enCoddedSignal'~=obj.SignalOutput.EncoddedSignal);
             end
             %% Signal Decoding
             trellis = poly2trellis(7, [133 171]);
             signalBits = IEEE802_11a_Receiver.viterbi_decoder(enCoddedSignal',trellis,48,1/2);
             % Decodding Error
             if obj.DebugMode
-                Signal_Decoding_Error = sum(signalBits~=obj.SignalOutput.SignalFieldBits) %#ok<NASGU>
-                find(signalBits~=obj.SignalOutput.SignalFieldBits)
+                Signal_Decoding_Error = sum(signalBits~=obj.SignalOutput.SignalFieldBits);
+                fprintf(1, 'Signal_Decoding_Error: %.2f\n', Signal_Decoding_Error);
+                find(signalBits~=obj.SignalOutput.SignalFieldBits);
             end
             %% Signal pareamters
             RateBits = [  6   , 1 1 0 1  
@@ -329,7 +335,8 @@ classdef IEEE802_11a_Receiver < handle
 
             % Freq Domain Error
             if obj.DebugMode
-                Data_FreqDomain_Error = sum(sum(round(dataFreqDoamin,1)~=round(obj.DataOutput.DataFreqDomain,1))) %#ok<NASGU>
+                Data_FreqDomain_Error = sum(sum(round(dataFreqDoamin,1)~=round(obj.DataOutput.DataFreqDomain,1)));
+                fprintf(1, 'Data_FreqDomain_Error: %.2f\n', Data_FreqDomain_Error);
                 % find(round(signalFreqDoamin,1)~=round(obj.SignalOutput.SignalFreqDomain,1))
             end
             %% Data Gaurd Remove
@@ -360,7 +367,8 @@ classdef IEEE802_11a_Receiver < handle
             interleavedData = IEEE802_11a_Receiver.QAM_DEMOD(mappedData,Mapping_Order)'; %%*************%%
             % Data Demapping Error
             if obj.DebugMode
-                Data_Demapping_Error = sum(interleavedData'~=obj.DataOutput.InterleavedData) %#ok<NASGU>
+                Data_Demapping_Error = sum(interleavedData'~=obj.DataOutput.InterleavedData);
+                fprintf(1, 'Data_Demapping_Error: %.2f\n', Data_Demapping_Error);
             end
             
             %% Data DeInterleaving
@@ -372,7 +380,8 @@ classdef IEEE802_11a_Receiver < handle
             enCoddedData = reshape(enCoddedData,NCBPS*Nsys,1);
             % Data DeInterleaving Error
             if obj.DebugMode
-                Data_DeInterleaving_Error = sum(enCoddedData ~=obj.DataOutput.EncodedData) %#ok<NASGU>
+                Data_DeInterleaving_Error = sum(enCoddedData ~=obj.DataOutput.EncodedData);
+                fprintf(1, 'Data_DeInterleaving_Error: %.2f\n', Data_DeInterleaving_Error);
             end
             
             %% Data DeCoding
@@ -380,14 +389,18 @@ classdef IEEE802_11a_Receiver < handle
             scrambledData = IEEE802_11a_Receiver.viterbi_decoder(enCoddedData,trellis,NCBPS*Nsys,Encoder_Rate);
             % Data Decoding Error
             if obj.DebugMode
-                Data_Decoding_Error = sum(scrambledData~=obj.DataOutput.ScrambledData) %#ok<NASGU>
+                valid_index1 = 1:16+obj.LENGTH*8;
+                Data_Decoding_Error = sum(scrambledData(valid_index1) ~= obj.DataOutput.ScrambledData(valid_index1));
+                fprintf(1, 'Data_Decoding_Error: %.2f\n', Data_Decoding_Error);
             end
             %% Data DeScrampling
             initial_state=[ 1 0 1 1 1 0 1 ]'; % Need to be estimated
             padedData = IEEE802_11a_Receiver.scrambler(initial_state, scrambledData);
             % Data DeScrampling Error
             if obj.DebugMode
-                Data_DeScrampling_Error = sum(padedData~=obj.DataOutput.PadedDataBits) %#ok<NASGU>
+                valid_index1 = 1:16+obj.LENGTH*8;
+                Data_DeScrampling_Error = sum(padedData(valid_index1) ~= obj.DataOutput.PadedDataBits(valid_index1));
+                fprintf(1, 'Data_DeScrampling_Error: %.2f\n', Data_DeScrampling_Error);
                 % find(padedData~=obj.DataOutput.PadedDataBits)
             end
             %% Data Output
@@ -547,10 +560,21 @@ classdef IEEE802_11a_Receiver < handle
 
         %% -----------------------------------------------------------------
         function autoCorrelation_out = Autocorr(Signal,corrWindow)
-            autoCorrelation_out=zeros(length(Signal),1);
-            for n=1:(length(Signal)-(2*corrWindow)-1)
-            autoCorrelation_out(n)=norm(sum( Signal(n+corrWindow:n+(2*corrWindow-1)).*conj(Signal(n:n+(corrWindow-1)))))./norm(Signal(n:n+(corrWindow-1)))^2;
-            end
+            % autoCorrelation_out=zeros(length(Signal),1);
+            % for n=1:(length(Signal)-(2*corrWindow)-1)
+            %     autoCorrelation_out(n) = ...
+            %         norm(sum( Signal(n+corrWindow:n+(2*corrWindow-1)).*conj(Signal(n:n+(corrWindow-1))) )) ./ ...
+            %         norm( Signal(n:n+(corrWindow-1)) )^2;
+            % end
+
+            signal_1st_index1 = (1:(length(Signal)-2*corrWindow+1)).' + (0:corrWindow-1);
+            signal_2nd_index1 = signal_1st_index1 + corrWindow;
+
+            signal_1st = Signal(signal_1st_index1);
+            signal_2nd = Signal(signal_2nd_index1);
+
+            % 不考虑分母为0的情况
+            autoCorrelation_out = abs(sum(signal_2nd .* conj(signal_1st), 2)) ./ sum(abs(signal_1st).^2, 2);
         end
         
         %% Preambels Generation Functions
@@ -686,7 +710,7 @@ classdef IEEE802_11a_Receiver < handle
                         activeSubCarriers(34:46,:);% 47
                         activeSubCarriers(48:end,:)];% 47
         
-            Pilots = [activeSubCarriers([6,20,33,48],:)];
+            Pilots = [activeSubCarriers([6,20,33,47],:)];
         end
         %% -----------------------------------------------------------------
         function deinterleavedData = deInterleaver(codedData,Nbpsc,Ncbps)

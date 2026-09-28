@@ -29,7 +29,7 @@ TX_Output = Transmitter.GenerateWaveform(data_hex);
 Effects = IEEE802_11a_Effects(TX_Output);
 Effects.DebugMode = 1; % Enable Effects Debug Mode
 
-Effects.add_Channel(200) %% Max Dealy Spread in us
+Effects.add_Channel(200) %% Max Dealy Spread in ns
 
 
 %% Extracting Data
@@ -43,5 +43,5 @@ ByteError = sum(RX_Data ~= data_hex)/LENGTH;
 BitError = sum(sum(RX_data_bits ~= data_bits))/(LENGTH*8);
 
 
-disp("Byte Error: ");disp(ByteError);
-disp("Bit Error: ");disp(BitError);
+fprintf(1, 'Byte Error Rate: %.6f\n', ByteError);
+fprintf(1, 'Bit Error Rate: %.6f\n', BitError);

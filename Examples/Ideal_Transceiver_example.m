@@ -30,10 +30,9 @@ TX_Output = Transmitter.GenerateWaveform(data_hex);
 Receiver = IEEE802_11a_Receiver(TX_Output);%IEEE802_11a_Receiver(TX_Output);
 RX_Data = Receiver.ReceiveData();
 
-RX_data_bits = dec2bin(RX_Data)-'0';
-ByteError = sum(RX_Data ~= data_hex)/LENGTH;
-BitError = sum(sum(RX_data_bits ~= data_bits))/(LENGTH*8);
+RX_data_bits  = dec2bin(RX_Data)-'0';
+ByteErrorRate = sum(RX_Data ~= data_hex)/LENGTH;
+BitErrorRate  = sum(sum(RX_data_bits ~= data_bits))/(LENGTH*8);
 
-
-disp("Byte Error: ");disp(ByteError);
-disp("Bit Error: ");disp(BitError);
+fprintf(1, 'Byte Error Rate: %.6f\n', ByteErrorRate);
+fprintf(1, 'Bit Error Rate: %.6f\n', BitErrorRate);

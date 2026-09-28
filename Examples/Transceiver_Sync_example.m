@@ -29,7 +29,10 @@ TX_Output = Transmitter.GenerateWaveform(data_hex);
 Effects = IEEE802_11a_Effects(TX_Output);
 Effects.DebugMode = 1; % Enable Effects Debug Mode
 
-Effects.add_STO(500) %% Number of added samples befor the waveform
+% Effects.add_Noise(20);
+% Effects.add_CFO(20);
+Effects.add_STO(500);   %% Number of added samples befor the waveform
+
 
 % Testing the Signal Detection
 %Effects.TransmitterOutput.waveform = zeros(1,800);
@@ -60,5 +63,5 @@ ByteError = sum(RX_Data ~= data_hex)/LENGTH;
 BitError = sum(sum(RX_data_bits ~= data_bits))/(LENGTH*8);
 
 
-disp("Byte Error: ");disp(ByteError);
-disp("Bit Error: ");disp(BitError);
+fprintf(1, 'Byte Error Rate: %.6f\n', ByteError);
+fprintf(1, 'Bit Error Rate: %.6f\n', BitError);

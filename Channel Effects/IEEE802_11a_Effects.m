@@ -31,7 +31,7 @@ classdef IEEE802_11a_Effects < handle
             
             SNR_linear = 10.^(SNR/10);
             % Signal power
-            Waveform_power = mean((obj.TransmitterOutput.waveform).^2);
+            Waveform_power = mean(abs(obj.TransmitterOutput.waveform).^2);
             Noise_power = (Waveform_power/SNR_linear);
             
             % Addition of noise
@@ -63,7 +63,8 @@ classdef IEEE802_11a_Effects < handle
             waveformSTO = [zeros(SamplesNumber,1) ; obj.TransmitterOutput.waveform];
 
             if(obj.DebugMode)
-                disp("Numper Of Added Samples: ");disp(SamplesNumber);
+                % disp("Numper Of Added Samples: ");disp(SamplesNumber);
+                fprintf("Numper Of Added Samples: %f\n", SamplesNumber);
                 figure("Name","STO Effect");
                 subplot(2,1,1);
                 plot(1:length(obj.TransmitterOutput.waveform),abs(obj.TransmitterOutput.waveform))
@@ -91,7 +92,8 @@ classdef IEEE802_11a_Effects < handle
             waveformCFO = obj.TransmitterOutput.waveform .* phase_shift;
 
             if(obj.DebugMode)
-                disp('CFO Efffect: ');disp(epsilon);
+                % disp('CFO Efffect: ');disp(epsilon);
+                fprintf("CFO Efffect: %f\n", epsilon);
                 ActiveSC = IEEE802_11a_Effects.ActiveSC_Extract(obj.TransmitterOutput.waveform);
                 figure("Name","Befor CFO Effect");
                 plot(ActiveSC,'bx');

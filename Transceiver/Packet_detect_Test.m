@@ -146,7 +146,7 @@ end
 function [Rx_waveform_Noise] = Adding_Noise_(TX_Waveform,SNR)
 SNR_linear = 10.^(SNR/10);
 % Signal power
-Waveform_power = mean(TX_Waveform.^2);
+Waveform_power = mean(abs(TX_Waveform).^2);
 Noise_power = (Waveform_power/SNR_linear);
 
 % Addition of noise

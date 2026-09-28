@@ -153,7 +153,8 @@ classdef IEEE802_11a_Transmitter
             %% Signal Field Time Domain
             freqDomainShefted = circshift(signalFreqDoamin,64/2);
             timeDomain = ifft(freqDomainShefted);
-            timeDomainCP = round([ timeDomain(end-15:end,:) ; timeDomain ],3);
+            % timeDomainCP = round([ timeDomain(end-15:end,:) ; timeDomain ],3);
+            timeDomainCP = [ timeDomain(end-15:end,:) ; timeDomain ];
             signalWaveform = reshape(timeDomainCP,1,[]).';
             
             if (obj.DebugMode)
@@ -226,7 +227,8 @@ classdef IEEE802_11a_Transmitter
             %% Freq Domain 
             %%Mapping
             mappedData = IEEE802_11a_Transmitter.QAM_MOD(interleavedData,Mapping_Order);
-            mappedData = round(reshape(mappedData,dataSC,Nsys),3);
+            % mappedData = round(reshape(mappedData,dataSC,Nsys),3);
+            mappedData = reshape(mappedData,dataSC,Nsys);
             % % Mapping ERROR Check
             % if debudMode
             %     plot(real(mappedData),imag(mappedData),'rx');
@@ -244,7 +246,8 @@ classdef IEEE802_11a_Transmitter
             %% Time Domain
             freqDomainShefted = circshift(freqDomain,fftSize/2);
             timeDomain = ifft(freqDomainShefted);
-            timeDomainCP = round([ timeDomain(end-15:end,:) ; timeDomain ],3);
+            % timeDomainCP = round([ timeDomain(end-15:end,:) ; timeDomain ],3);
+            timeDomainCP = [timeDomain(end-15:end,:); timeDomain];
             dataWaveform = reshape(timeDomainCP,1,[]).';
             
             %% Output Struct
